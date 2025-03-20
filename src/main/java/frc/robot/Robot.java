@@ -128,9 +128,28 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (autoName) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
+      case "Left":
+      if(m_timer.get() < 3)
+      {
+        left_front.set(-0.3);
+        right_front.set(-0.3);
+      }
+      else
+      {
+        left_front.stopMotor();
+        right_front.stopMotor();
+      }
+      if(m_timer.get() >= 3 && m_timer.get() < 3.5){}
+      if(m_timer.get() >= 3.5 && m_timer.get() < 4.8)
+      {
+        
+        intake_motor.set(0.43);
+      }
+      else{
+        intake_motor.stopMotor();
+      }
+      break;
+
       case "Default":
       default:
         if(m_timer.get() < 2.3)
