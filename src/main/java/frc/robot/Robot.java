@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
         break;
       case "Default":
       default:
-        if(m_timer.get() < 2.3)
+        if(m_timer.get() < 3.2)
         {
           left_front.set(-0.3);
           right_front.set(-0.3);
