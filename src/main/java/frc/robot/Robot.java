@@ -269,7 +269,7 @@ public class Robot extends TimedRobot {
     double negSpd = 0.4;
 
     if (joystick_1.getAButton()) {
-      intake_motor.set(negSpd);
+      intake_motor.set(negSpd);  
   } else if (joystick_1.getBButton()) {
       intake_motor.set(-negSpd);
   } else {
