@@ -129,13 +129,14 @@ public class Robot extends TimedRobot {
   }
 
   public void driveForwardUsingNavX(double targetDistanceInches) {
+    m_timer.reset();
     // Convert target distance from inches to meters (NavX uses meters)
     double targetDistanceMeters = targetDistanceInches * 0.0254; // 1 inch = 0.0254 meters
     double direction = targetDistanceInches > 0 ? 1 : -1; // Determine direction
 
     double initialDisplacementX = ahrs.getDisplacementX(); // Get initial displacement along the X-axis
     // Start driving forwardx
-    while (Math.abs(ahrs.getDisplacementX()) - Math.abs(initialDisplacementX) < Math.abs(targetDistanceMeters)) {
+    while (Math.abs(ahrs.getDisplacementX()) - Math.abs(initialDisplacementX) < Math.abs(targetDistanceMeters) && m_timer.get() < 10) {
       left_front.set(0.45 * direction);
       right_front.set(0.45 * direction);
       intake_motor.set(0);
@@ -163,7 +164,7 @@ public class Robot extends TimedRobot {
     // Set direction of speed
     double driveSpeed = isForward ? speed : -speed;
 
-    while (Math.abs(right_encoder.get()) < Math.abs(targetCounts)) {
+    while (Math.abs(right_encoder.get()) < Math.abs(targetCounts) ) {
       left_front.set(driveSpeed);
       right_front.set(driveSpeed);
       intake_motor.set(0);
@@ -214,39 +215,31 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     System.out.println("Auto selected: " + m_autoSelected);
     m_timer.restart();
+    m_timer.reset();
     resetToZeroEncoders();
     reset();
-  }
-
-  /** This function is called periodically during autonomous. */
-  @Override
-  public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kLeftAuto:
         // driveDistance(5, 0.1);
         driveForwardUsingNavX(-165 + 6);
-        m_autoSelected = "stop";
       break;
 
       case kDefaultAuto:
       case kRightAuto:
         // driveDistance(5, 0.1);
         driveForwardUsingNavX(-165 + 6);
-        m_autoSelected = "stop";
-        break;
-      case "stop":
-        double count = 0;
-        if (count == 1) {
-          System.out.println("No Current Auto Running, or Auto is stopped.");
-          count = count + 1;
-        }
-        break;
+      break;
       default:
-      driveForwardUsingNavX(-88 + 6);
-      m_autoSelected = "stop";
+      driveForwardUsingNavX(-165 + 6);
         break;
 
    }
+
+  }
+
+  /** This function is called periodically during autonomous. */
+  @Override
+  public void autonomousPeriodic() {
    System.out.println(String.format("Target Distance: %f", ahrs.getDisplacementX() - initialDisplacementX)); 
   }
 
