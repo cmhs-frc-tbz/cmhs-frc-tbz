@@ -272,7 +272,10 @@ public class Robot extends TimedRobot {
       intake_motor.set(negSpd);  
   } else if (joystick_1.getBButton()) {
       intake_motor.set(-negSpd);
-  } else {
+  } else if (joystick_1.getLeftTriggerAxis() > 0.1) {
+    intake_motor.set(joystick_1.getLeftTriggerAxis());
+  }
+  else {
       intake_motor.stopMotor();
   }
 
