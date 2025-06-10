@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.cameraserver.CameraServer;
+
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -18,7 +18,6 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.function.Function;
 // import com.studica.frc.AHRS;
@@ -100,9 +99,6 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("Right Auto", kRightAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    UsbCamera camera = CameraServer.startAutomaticCapture();
-    camera.setResolution(320, 240);
-    camera.setFPS(30);
     right_encoder.setReverseDirection(true);
     ahrs = new AHRS(AHRS.NavXComType.kMXP_SPI);
   }
