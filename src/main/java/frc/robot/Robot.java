@@ -33,8 +33,8 @@ public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kLeftAuto = "Left";
   private static final String kRightAuto = "Right";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  //private String m_autoSelected;
+  //private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   // Drive train motors
   private final SparkMax left_front = new SparkMax(3, MotorType.kBrushed);
@@ -94,13 +94,14 @@ public class Robot extends TimedRobot {
     right_front.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     right_rear.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
+    right_encoder.setReverseDirection(true);
+    ahrs = new AHRS(AHRS.NavXComType.kMXP_SPI);
+
+    /**m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("Left Auto", kLeftAuto);
     m_chooser.addOption("Right Auto", kRightAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-
-    right_encoder.setReverseDirection(true);
-    ahrs = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    */
   }
 
   @Override
