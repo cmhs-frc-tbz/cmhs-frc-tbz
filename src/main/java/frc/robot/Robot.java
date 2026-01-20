@@ -38,11 +38,12 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   // Drive train motors
-  private final SparkMax left_front = new SparkMax(3, MotorType.kBrushed);
-  private final SparkMax left_rear = new SparkMax(4, MotorType.kBrushed);
-  private final SparkMax right_front = new SparkMax(2, MotorType.kBrushed);
-  private final SparkMax right_rear = new SparkMax(7, MotorType.kBrushed);
-  private final SparkMax intake_motor = new SparkMax(5, MotorType.kBrushed);
+  private final SparkMax left_front = new SparkMax(2, MotorType.kBrushed);
+  private final SparkMax left_rear = new SparkMax(3, MotorType.kBrushed);
+  private final SparkMax right_front = new SparkMax(4, MotorType.kBrushed);
+  private final SparkMax right_rear = new SparkMax(5, MotorType.kBrushed);
+  private final SparkMax intake_motor = new SparkMax(6, MotorType.kBrushed);
+  private final SparkMax intake_motor2 = new SparkMax(7, MotorType.kBrushed);
 
   double initialDisplacementX;
 
@@ -223,6 +224,12 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     switch (m_autoSelected) {
       case kLeftAuto:
+        /* go forward to the line of our side's neutral
+         * turn left
+         * go till the end
+         * cross the trench
+         * left and between closest and second closest drive stations
+         */
         // driveDistance(5, 0.1);
         driveForwardUsingNavX(-165 + 6);
         m_autoSelected = "stop";
