@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.lang.ModuleLayer.Controller;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -79,7 +81,24 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+    double forward = controller.getLeftY();
+    double rotation = -controller.getRightX();
+
+    left_front.set(forward + rotation);
+    right_front.set(forward - rotation);
+
+    double negSpd = 0.4;
+
+    if (Controller.getAButton()) {
+      intake_motor.set(negSpd);  
+  } else if (controller.getBButton()) {
+      intake_motor.set(-negSpd);
+  } else {
+      intake_motor.stopMotor();
+
+  }
 
   @Override
   public void testInit() {
