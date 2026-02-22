@@ -16,14 +16,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.BaseMode
+//import com.revrobotics.spark.SparkBase.BaseMode
 
 public class DriveSubsystem extends SubsystemBase {
 
-  SparkMax leftLeader = new SparkMax(2, MotorType.kBrushed);
-  SparkMax leftFollower = new SparkMax(3, MotorType.kBrushed);
-  SparkMax rightLeader = new SparkMax(4, MotorType.kBrushed);
-  SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
+  public final SparkMax leftLeader = new SparkMax(2, MotorType.kBrushed);
+  public final SparkMax leftFollower = new SparkMax(3, MotorType.kBrushed);
+  public final SparkMax rightLeader = new SparkMax(4, MotorType.kBrushed);
+  public final SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
   Encoder leftEncoder = new Encoder(0, 1);
   Encoder rightEncoder = new Encoder(2, 3);
   double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; //change this to our wheelbase dimensions (2048 or 4096 ticks, Gear Reduction)

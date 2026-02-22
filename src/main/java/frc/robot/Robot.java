@@ -4,11 +4,15 @@
 
 package frc.robot;
 
-import java.lang.ModuleLayer.Controller;
+//import java.lang.ModuleLayer.Controller;
 
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.subsystems.DriveSubsystem;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -16,9 +20,17 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * this project, you must also update the Main.java file in the project.
  */
 public class Robot extends TimedRobot {
+  private static final String kDefaultAuto = "Default";
+  private static final String kLeftAuto = "Left";
+  private static final String kRightAuto = "Right";
+  private String m_autoSelected;
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Command m_autonomousCommand;
+  private final Timer m_timer = new Timer();
 
-  private final RobotContainer m_robotContainer;
+  //private final RobotContainer m_robotContainer;
+  private final XboxController controller = new XboxController(0);
+  private final DriveSubsystem drive = new DriveSubsystem();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -27,7 +39,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    m_robotContainer = new RobotContainer();
+    //m_robotContainer = new RobotContainer();
   }
 
   /**
@@ -56,7 +68,11 @@ public class Robot extends TimedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+    m_autoSelected = m_chooser.getSelected();
+    System.out.println("Auto selected: " + m_autoSelected);
+    m_timer.restart();
+    //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
     if (m_autonomousCommand != null) {
@@ -66,7 +82,30 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    switch (m_autoSelected) {
+      case kLeftAuto:
+        
+        m_autoSelected = "stop";
+      break;
+
+      case kDefaultAuto:
+      case kRightAuto:
+        
+        m_autoSelected = "stop";
+        break;
+      case "stop":
+        double count = 0;
+        if (count == 1) {
+          System.out.println("No Current Auto Running, or Auto is stopped.");
+          count = count + 1;
+        }
+        break;
+      default:
+        
+        break;
+    }
+  }
 
   @Override
   public void teleopInit() {
@@ -86,19 +125,19 @@ public class Robot extends TimedRobot {
     double forward = controller.getLeftY();
     double rotation = -controller.getRightX();
 
-    left_front.set(forward + rotation);
-    right_front.set(forward - rotation);
+    drive.leftLeader.set(forward + rotation);
+    drive.rightLeader.set(forward - rotation);
 
     double negSpd = 0.4;
 
-    if (Controller.getAButton()) {
+    /*if (controller.getAButton()) {
       intake_motor.set(negSpd);  
   } else if (controller.getBButton()) {
       intake_motor.set(-negSpd);
   } else {
       intake_motor.stopMotor();
-
-  }
+  }*/
+}
 
   @Override
   public void testInit() {
