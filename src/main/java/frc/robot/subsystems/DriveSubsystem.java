@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.spark.SparkMax;
@@ -15,8 +16,9 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.PersistMode;
 //import com.revrobotics.spark.SparkBase.BaseMode
+import com.revrobotics.ResetMode;
 
 public class DriveSubsystem extends SubsystemBase {
 
@@ -26,17 +28,22 @@ public class DriveSubsystem extends SubsystemBase {
   public final SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
   Encoder leftEncoder = new Encoder(0, 1);
   Encoder rightEncoder = new Encoder(2, 3);
-  double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; //change this to our wheelbase dimensions (2048 or 4096 ticks, Gear Reduction)
-  // kEncoderTick2Meter = Wheel circumference (m) / (Ticks per revolution * Gear Reduction)
+  double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; // change this to our wheelbase dimensions (2048 or 4096
+                                                              // ticks, Gear Reduction)
+  // kEncoderTick2Meter = Wheel circumference (m) / (Ticks per revolution * Gear
+  // Reduction)
 
   SparkMaxConfig globalConfig = new SparkMaxConfig();
   SparkMaxConfig rightLeaderConfig = new SparkMaxConfig();
   SparkMaxConfig leftFollowerConfig = new SparkMaxConfig();
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
-  
+
+  private DifferentialDrive m_robotDrive;
+
   public double getEncoderMeters() {
     return (leftEncoder.get() + -rightEncoder.get()) / 2 * kEncoderTick2Meter;
   }
+
   /** Creates a new ExampleSubsystem. */
   public DriveSubsystem() {
 
@@ -58,15 +65,15 @@ public class DriveSubsystem extends SubsystemBase {
     rightFollowerConfig
         .apply(globalConfig)
         .follow(rightLeader);
-    
-    //figure out replacement or removal of reset and persist modes
-    /*leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // figure out replacement or removal of reset and persist modes
+    leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    */
-    
-    
+
+    m_robotDrive = new DifferentialDrive(leftLeader::set, rightLeader::set);
+
   }
 
   /**
@@ -84,7 +91,8 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   /**
-   * An example method querying a boolean state of the subsystem (for example, a digital sensor).
+   * An example method querying a boolean state of the subsystem (for example, a
+   * digital sensor).
    *
    * @return value of some boolean subsystem state, such as a digital sensor.
    */
@@ -99,10 +107,10 @@ public class DriveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run
   }
 
-    public void setMotors(double leftSpeed, double rightSpeed) {
-      leftLeader.set(leftSpeed);
-      rightLeader.set(-rightSpeed);
-    }
+  public void setMotors(double leftSpeed, double rightSpeed) {
+    leftLeader.set(leftSpeed);
+    rightLeader.set(-rightSpeed);
+  }
 
   @Override
   public void simulationPeriodic() {

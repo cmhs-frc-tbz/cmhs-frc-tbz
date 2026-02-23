@@ -8,8 +8,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    public final SparkMax leftIntake = new SparkMax(6, MotorType.kBrushed);
-    public final SparkMax rightIntake = new SparkMax(7, MotorType.kBrushed);
+    public final SparkMax shooter_intake = new SparkMax(6, MotorType.kBrushed);
+    public final SparkMax agitator = new SparkMax(7, MotorType.kBrushed);
 
     public IntakeSubsystem() {
     }

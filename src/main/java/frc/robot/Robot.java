@@ -28,7 +28,7 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   private final Timer m_timer = new Timer();
 
-  //private final RobotContainer m_robotContainer;
+  private final RobotContainer m_robotContainer;
   private final XboxController controller = new XboxController(0);
   private final DriveSubsystem drive = new DriveSubsystem();
 
@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
-    //m_robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer();
   }
 
   /**
@@ -69,60 +69,44 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
 
-    m_autoSelected = m_chooser.getSelected();
-    System.out.println("Auto selected: " + m_autoSelected);
-    m_timer.restart();
-    //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    // m_autoSelected = m_chooser.getSelected();
+    // System.out.println("Auto selected: " + m_autoSelected);
+    // m_timer.restart();
+    // //m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
-    }
+    // // schedule the autonomous command (example)
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.schedule();
+    // }
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kLeftAuto:
-        
-        m_autoSelected = "stop";
-      break;
+    // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-      case kDefaultAuto:
-      case kRightAuto:
-        
-        m_autoSelected = "stop";
-        break;
-      case "stop":
-        double count = 0;
-        if (count == 1) {
-          System.out.println("No Current Auto Running, or Auto is stopped.");
-          count = count + 1;
-        }
-        break;
-      default:
-        
-        break;
-    }
+    // // schedule the autonomous command (example)
+    // if (m_autonomousCommand != null) {
+    //   CommandScheduler.getInstance().schedule(m_autonomousCommand);
+    // }
   }
 
   @Override
   public void teleopInit() {
-    // This makes sure that the autonomous stops running when
-    // teleop starts running. If you want the autonomous to
-    // continue until interrupted by another command, remove
-    // this line or comment it out.
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
-    }
+    // // This makes sure that the autonomous stops running when
+    // // teleop starts running. If you want the autonomous to
+    // // continue until interrupted by another command, remove
+    // // this line or comment it out.
+    // if (m_autonomousCommand != null) {
+    //   m_autonomousCommand.cancel();
+    // }
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
 
-    double forward = controller.getLeftY();
+    double forward = -controller.getLeftY();
     double rotation = -controller.getRightX();
 
     drive.leftLeader.set(forward + rotation);
