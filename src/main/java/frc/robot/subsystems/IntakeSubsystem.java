@@ -12,6 +12,8 @@ public class IntakeSubsystem extends SubsystemBase {
     public final SparkMax agitator = new SparkMax(7, MotorType.kBrushed);
 
     public IntakeSubsystem() {
+        
     }
+
 
 }

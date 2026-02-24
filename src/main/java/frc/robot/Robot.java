@@ -106,14 +106,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
-    double forward = -controller.getLeftY();
-    double rotation = controller.getRightX();
-  
-    double negSpd = 0.4;
-
-    drive.leftLeader.set(forward + rotation);
-    drive.rightLeader.set(forward - rotation);
-
     /*if (controller.getAButton()) {
       intake_motor.set(negSpd);  
   } else if (controller.getBButton()) {
