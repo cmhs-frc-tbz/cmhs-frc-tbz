@@ -25,16 +25,23 @@ public class RobotContainer {
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
   private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
-  private final CommandXboxController joystick1 = new CommandXboxController(0);
-  // private final DriveForwardCmd DriveForwardCmd = new DriveForwardCmd();
-  // // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-      new CommandXboxController(OperatorConstants.kDriverControllerPort);
+  // Replace with CommandPS4Controller or CommandJoystick if needed
+  private final CommandXboxController m_driverController =new CommandXboxController(OperatorConstants.kDriverControllerPort);
+
+
+  private final TankDriveCmd drive = new TankDriveCmd(
+    driveSubsystem, 
+    () -> {-m_driverController.getLeftY()}, //reverse the left joysticks
+     m_driverController::getRightX}
+    );
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
     configureBindings();
+
+    //configure the default command, which is drive
+    m_robotDrive.setDefaultCommand(drive);
   }
 
   /**
@@ -51,12 +58,14 @@ public class RobotContainer {
     // new Trigger(m_exampleSubsystem::exampleCondition)
     //     .onTrue(new ExampleCommand(m_exampleSubsystem));
 
+    //default command
   
-
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
+    m_driverController.a()
+    .toggleOnTrue();
   }
 
   /**
