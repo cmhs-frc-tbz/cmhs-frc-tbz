@@ -9,7 +9,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class AgitationSubsystem extends SubsystemBase {
     public final SparkMax agitator = new SparkMax(7, MotorType.kBrushed);
     
-    public IntakeSubsystem() {}
+    public AgitationSubsystem() {}
 
 
 

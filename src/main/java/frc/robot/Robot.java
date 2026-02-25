@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     // m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+    CommandScheduler.getInstance().run();
 
     // // schedule the autonomous command (example)
     // if (m_autonomousCommand != null) {
@@ -106,7 +107,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //configure the bindings
-    m_robotContainer.configureBindings();
     /*if (controller.getAButton()) {
       intake_motor.set(negSpd);  
   } else if (controller.getBButton()) {
