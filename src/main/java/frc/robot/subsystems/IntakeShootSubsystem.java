@@ -10,7 +10,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType; 
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-public class IntakeShootSubsystem extends SubsystemBase {
+public class IntakeShootSubsystem extends SubsystemBase{
 
     public final SparkMax shooter_intake = new SparkMax(6, MotorType.kBrushless);
     SparkMaxConfig globalConfig = new SparkMaxConfig();
@@ -30,16 +30,16 @@ public class IntakeShootSubsystem extends SubsystemBase {
 
     public Command runIntakeCommand() {
         // implicitly requires `this`
-        return this.startEnd(() -> this.set(1.0), null);
+        return this.runOnce(() -> this.set(1.0));
     }
 
     public Command stopCommand(){
-        return this.startEnd(() -> this.set(0.0), null);
+        return this.runOnce(() -> this.set(0.0));
     }
 
     public Command runShootCommand() {
         // implicitly requires `this`
-        return InstantCommand(() -> this.set(-1.0), this);
+        return this.runOnce(() -> this.set(-1.0));
     }
 
 }

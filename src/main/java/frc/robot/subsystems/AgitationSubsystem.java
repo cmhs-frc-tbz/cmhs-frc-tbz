@@ -32,16 +32,16 @@ public class AgitationSubsystem extends SubsystemBase {
 
     public Command runIntakeCommand() {
         // implicitly requires `this`
-        return this.startEnd(() -> this.set(1.0), null);
+        return this.runOnce(() -> this.set(1.0));
     }
 
     public Command stopCommand(){
-        return this.startEnd(() -> this.set(0.0), null);
+        return this.runOnce(() -> this.set(0.0));
     }
 
     public Command runShootCommand() {
         // implicitly requires `this`
-        return this.startEnd(() -> this.set(-1.0), null);
+        return this.runOnce(() -> this.set(-1.0));
     }
 
 

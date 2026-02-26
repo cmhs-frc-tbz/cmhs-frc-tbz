@@ -7,8 +7,10 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeShootSubsystem;
 import frc.robot.subsystems.AgitationSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -22,7 +24,8 @@ import frc.robot.commands.TankDriveCmd;
 public class RobotContainer {
   // // The robot's subsystems and commands are defined here...
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-  private final AgitationSubsystem intakeSubsystem = new AgitationSubsystem();
+  private final AgitationSubsystem agitationSubystem = new AgitationSubsystem();
+  private final IntakeShootSubsystem intakeShootSubsystem = new IntakeShootSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =new CommandXboxController(OperatorConstants.kDriverControllerPort);
@@ -35,9 +38,9 @@ public class RobotContainer {
 
     //configure the default command, which is drive
     driveSubsystem.setDefaultCommand(new TankDriveCmd(
-    driveSubsystem,
-    () -> -m_driverController.getLeftY(), //reverse the left joystick
-    m_driverController::getRightX
+      driveSubsystem,
+      () -> -m_driverController.getLeftY(), //reverse the left joystick
+      m_driverController::getRightX
   ));
   }
 
@@ -52,16 +55,31 @@ public class RobotContainer {
    */
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
-    // new Trigger(m_exampleSubsystem::exampleCondition)
-    //     .onTrue(new ExampleCommand(m_exampleSubsystem));
-
+  
     //default command
   
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    // m_driverController.a().toggleOnTrue();
+    m_driverController.a().toggleOnTrue(new ParallelCommandGroup(
+      agitationSubystem.runIntakeCommand(),
+      intakeShootSubsystem.runIntakeCommand()
+    ));
+
+    m_driverController.b().toggleOnTrue(
+      new ParallelCommandGroup(
+        agitationSubystem.stopCommand(),
+        intakeShootSubsystem.stopCommand()
+      )
+    );
+
+    m_driverController.x().toggleOnTrue(
+      new ParallelCommandGroup(
+        agitationSubystem.runShootCommand(),
+        intakeShootSubsystem.runShootCommand()
+      )
+    );
   }
 
   /**
