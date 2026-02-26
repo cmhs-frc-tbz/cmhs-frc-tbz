@@ -7,7 +7,7 @@ package frc.robot;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.AgitationSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -22,17 +22,11 @@ import frc.robot.commands.TankDriveCmd;
 public class RobotContainer {
   // // The robot's subsystems and commands are defined here...
   private final DriveSubsystem driveSubsystem = new DriveSubsystem();
-  private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+  private final AgitationSubsystem intakeSubsystem = new AgitationSubsystem();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =new CommandXboxController(OperatorConstants.kDriverControllerPort);
 
-
-  private final TankDriveCmd drive = new TankDriveCmd(
-    driveSubsystem,
-    () -> -m_driverController.getLeftY(), //reverse the left joystick
-    m_driverController::getRightX
-  );
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -40,7 +34,11 @@ public class RobotContainer {
     configureBindings();
 
     //configure the default command, which is drive
-    driveSubsystem.setDefaultCommand(drive);
+    driveSubsystem.setDefaultCommand(new TankDriveCmd(
+    driveSubsystem,
+    () -> -m_driverController.getLeftY(), //reverse the left joystick
+    m_driverController::getRightX
+  ));
   }
 
   /**
