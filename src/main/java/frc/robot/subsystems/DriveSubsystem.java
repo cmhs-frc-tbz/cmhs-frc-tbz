@@ -16,19 +16,23 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.PersistMode;
-//import com.revrobotics.spark.SparkBase.BaseMode
+//import com.revrobotics.spark.Sp   arkBase.BaseMode
 import com.revrobotics.ResetMode;
 
 public class DriveSubsystem extends SubsystemBase {
 
 
-  public final SparkMax leftLeader = new SparkMax(2, MotorType.kBrushed);
-  public final SparkMax leftFollower = new SparkMax(3, MotorType.kBrushed);
-  public final SparkMax rightLeader = new SparkMax(4, MotorType.kBrushed);
-  public final SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
+  private final SparkMax leftLeader = new SparkMax(2, MotorType.kBrushed);
+  private final SparkMax leftFollower = new SparkMax(3, MotorType.kBrushed);
+  private final SparkMax rightLeader = new SparkMax(4, MotorType.kBrushed);
+  private final SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
+
   Encoder leftEncoder = new Encoder(0, 1);
-  Encoder rightEncoder = new Encoder(2, 3);
+  Encoder rightEncoder = new Encoder(2, 3, true);
   double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; // change this to our wheelbase dimensions (2048 or 4096
                                                               // ticks, Gear Reduction)
   // kEncoderTick2Meter = Wheel circumference (m) / (Ticks per revolution * Gear
@@ -39,7 +43,7 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig leftFollowerConfig = new SparkMaxConfig();
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
-  private DifferentialDrive m_robotDrive;
+  private DifferentialDrive m_drive = new DifferentialDrive(leftLeader::set, rightLeader::set);
 
   public double getEncoderMeters() {
     return (leftEncoder.get() + -rightEncoder.get()) / 2 * kEncoderTick2Meter;
@@ -72,9 +76,6 @@ public class DriveSubsystem extends SubsystemBase {
     leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-    m_robotDrive = new DifferentialDrive(leftLeader::set, rightLeader::set);
-
   }
 
   /**
@@ -91,6 +92,24 @@ public class DriveSubsystem extends SubsystemBase {
         });
   }
 
+  public Command cheesyDriveCommand(DoubleSupplier fwd, DoubleSupplier rot, boolean turn_in_place) {
+    // A split-stick arcade command, with forward/backward controlled by the left
+    // hand, and turning controlled by the right.
+    return run(() -> m_drive.curvatureDrive(fwd.getAsDouble(), rot.getAsDouble(), turn_in_place))
+        .withName("cheesyDrive");
+  }
+  
+  public Command arcadeDriveCommand(DoubleSupplier fwd, DoubleSupplier rot) {
+    // A split-stick arcade command, with forward/backward controlled by the left
+    // hand, and turning controlled by the right.
+    return run(() -> m_drive.arcadeDrive(fwd.getAsDouble(), 0.7 * rot.getAsDouble()))
+        .withName("arcadeDrive");
+  }
+
+
+
+
+
   /**
    * An example method querying a boolean state of the subsystem (for example, a
    * digital sensor).
@@ -106,11 +125,6 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putNumber("Drive encoder value: ", getEncoderMeters());
     // This method will be called once per scheduler run
-  }
-
-  public void setMotors(double leftSpeed, double rightSpeed) {
-    leftLeader.set(leftSpeed);
-    rightLeader.set(-rightSpeed);
   }
 
   @Override

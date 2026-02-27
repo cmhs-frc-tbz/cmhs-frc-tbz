@@ -14,7 +14,6 @@ import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.TankDriveCmd;
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
  * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
@@ -37,10 +36,10 @@ public class RobotContainer {
     configureBindings();
 
     //configure the default command, which is drive
-    driveSubsystem.setDefaultCommand(new TankDriveCmd(
-      driveSubsystem,
+    driveSubsystem.setDefaultCommand(driveSubsystem.cheesyDriveCommand(
       () -> -m_driverController.getLeftY(), //reverse the left joystick
-      m_driverController::getRightX
+      m_driverController::getRightX,
+      false
   ));
   }
 
@@ -62,23 +61,32 @@ public class RobotContainer {
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is pressed,
     // cancelling on release.
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
-    m_driverController.a().toggleOnTrue(new ParallelCommandGroup(
+    m_driverController.leftTrigger(0.5).whileTrue(new ParallelCommandGroup(
       agitationSubystem.runIntakeCommand(),
       intakeShootSubsystem.runIntakeCommand()
-    ));
-
-    m_driverController.b().toggleOnTrue(
+    )).whileFalse(
       new ParallelCommandGroup(
         agitationSubystem.stopCommand(),
         intakeShootSubsystem.stopCommand()
       )
     );
 
-    m_driverController.x().toggleOnTrue(
+    m_driverController.rightTrigger(0.5).whileTrue(new ParallelCommandGroup(
+      agitationSubystem.runShootCommand(),
+      intakeShootSubsystem.runShootCommand()
+    )).whileFalse(
       new ParallelCommandGroup(
-        agitationSubystem.runShootCommand(),
-        intakeShootSubsystem.runShootCommand()
+        agitationSubystem.stopCommand(),
+        intakeShootSubsystem.stopCommand()
       )
+    );
+
+    m_driverController.rightBumper().whileTrue(
+      driveSubsystem.cheesyDriveCommand(
+      () -> -m_driverController.getLeftY(), //reverse the left joystick
+      m_driverController::getRightX,
+      true
+  )
     );
   }
 
