@@ -26,13 +26,13 @@ import com.revrobotics.ResetMode;
 public class DriveSubsystem extends SubsystemBase {
 
 
-  private final SparkMax leftLeader = new SparkMax(2, MotorType.kBrushed);
-  private final SparkMax leftFollower = new SparkMax(3, MotorType.kBrushed);
-  private final SparkMax rightLeader = new SparkMax(4, MotorType.kBrushed);
-  private final SparkMax rightFollower = new SparkMax(5, MotorType.kBrushed);
+  private final SparkMax m_leftLeader = new SparkMax(2, MotorType.kBrushed);
+  private final SparkMax m_leftFollower = new SparkMax(3, MotorType.kBrushed);
+  private final SparkMax m_rightLeader = new SparkMax(4, MotorType.kBrushed);
+  private final SparkMax m_rightFollower = new SparkMax(5, MotorType.kBrushed);
 
-  Encoder leftEncoder = new Encoder(0, 1);
-  Encoder rightEncoder = new Encoder(2, 3, true);
+  Encoder m_leftEncoder = new Encoder(0, 1);
+  Encoder m_rightEncoder = new Encoder(2, 3, true);
   double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; // change this to our wheelbase dimensions (2048 or 4096
                                                               // ticks, Gear Reduction)
   // kEncoderTick2Meter = Wheel circumference (m) / (Ticks per revolution * Gear
@@ -43,10 +43,10 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig leftFollowerConfig = new SparkMaxConfig();
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
-  private DifferentialDrive m_drive = new DifferentialDrive(leftLeader::set, rightLeader::set);
+  private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
 
   public double getEncoderMeters() {
-    return (leftEncoder.get() + -rightEncoder.get()) / 2 * kEncoderTick2Meter;
+    return (m_leftEncoder.get() + -m_rightEncoder.get()) / 2 * kEncoderTick2Meter;
   }
 
   /** Creates a new ExampleSubsystem. */
@@ -64,18 +64,18 @@ public class DriveSubsystem extends SubsystemBase {
     // Apply the global config and set the leader SPARK for follower mode
     leftFollowerConfig
         .apply(globalConfig)
-        .follow(leftLeader);
+        .follow(m_leftLeader);
 
     // Apply the global config and set the leader SPARK for follower mode
     rightFollowerConfig
         .apply(globalConfig)
-        .follow(rightLeader);
+        .follow(m_rightLeader);
 
     // figure out replacement or removal of reset and persist modes
-    leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_leftLeader.configure(globalConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    m_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   /**
@@ -106,8 +106,23 @@ public class DriveSubsystem extends SubsystemBase {
         .withName("arcadeDrive");
   }
 
-
-
+  public Command driveDistanceCommand(double distanceMeters, double speed) {
+    return runOnce(
+            () -> {
+              // Reset encoders at the start of the command
+              m_leftEncoder.reset();
+              m_rightEncoder.reset();
+            })
+        // Drive forward at specified speed
+        .andThen(run(() -> m_drive.arcadeDrive(speed, 0)))
+        // End command when we've traveled the specified distance
+        .until(
+            () ->
+                Math.max(m_leftEncoder.getDistance(), m_rightEncoder.getDistance())
+                    >= distanceMeters)
+        // Stop the drive when the command ends
+        .finallyDo(interrupted -> m_drive.stopMotor());
+  }
 
 
   /**

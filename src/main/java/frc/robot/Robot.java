@@ -29,8 +29,6 @@ public class Robot extends TimedRobot {
   private final Timer m_timer = new Timer();
 
   private final RobotContainer m_robotContainer;
-  private final XboxController controller = new XboxController(0);
-  private final DriveSubsystem drive = new DriveSubsystem();
 
   /**
    * This function is run when the robot is first started up and should be used for any
