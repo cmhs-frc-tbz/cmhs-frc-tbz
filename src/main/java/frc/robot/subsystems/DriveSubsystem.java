@@ -6,13 +6,17 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.studica.frc.AHRS;
+import com.studica.frc.AHRS.NavXComType;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -30,6 +34,15 @@ public class DriveSubsystem extends SubsystemBase {
   private final SparkMax m_leftFollower = new SparkMax(3, MotorType.kBrushed);
   private final SparkMax m_rightLeader = new SparkMax(4, MotorType.kBrushed);
   private final SparkMax m_rightFollower = new SparkMax(5, MotorType.kBrushed);
+  AHRS ahrs;
+  PIDController turnController;
+
+
+  static final double kP = 0.03;
+  static final double kI = 0.00;
+  static final double kD = 0.00;
+  static final double kF = 0.00;
+
 
   Encoder m_leftEncoder = new Encoder(0, 1);
   Encoder m_rightEncoder = new Encoder(2, 3, true);
@@ -76,6 +89,9 @@ public class DriveSubsystem extends SubsystemBase {
     m_leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    ahrs = new AHRS(NavXComType.kMXP_SPI);
+    turnController = new PIDController(kP, kI, kD);
+
   }
 
   /**
