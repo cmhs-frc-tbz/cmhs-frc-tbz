@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.networktables.NetworkTable;
+
 //import java.lang.ModuleLayer.Controller;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -23,7 +26,7 @@ public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kLeftAuto = "Left";
   private static final String kRightAuto = "Right";
-  private String m_autoSelected;
+  
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private Command m_autonomousCommand;
   private final Timer m_timer = new Timer();
