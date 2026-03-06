@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
@@ -30,6 +33,9 @@ import com.revrobotics.ResetMode;
 
 public class DriveSubsystem extends SubsystemBase {
 
+    private final DifferentialDrivePoseEstimator poseEstimator;
+
+    private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
 
   private final SparkMax m_leftLeader = new SparkMax(2, MotorType.kBrushed);
   private final SparkMax m_leftFollower = new SparkMax(3, MotorType.kBrushed);
@@ -57,7 +63,17 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig leftFollowerConfig = new SparkMaxConfig();
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
-  private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
+  private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);        
+  poseEstimator =
+                new DifferentialDrivePoseEstimator(
+                        kinematics,
+                        getGyroYaw(),
+                        getModulePositions(),
+                        new Pose2d(),
+                        stateStdDevs,
+                        visionStdDevs);
+
+
 
   public double getEncoderMeters() {
     return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance());
