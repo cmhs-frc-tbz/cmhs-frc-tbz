@@ -23,6 +23,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import java.util.function.DoubleSupplier;
 
+import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.PersistMode;
 //import com.revrobotics.spark.Sp   arkBase.BaseMode
 import com.revrobotics.ResetMode;
@@ -59,7 +60,7 @@ public class DriveSubsystem extends SubsystemBase {
   private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);
 
   public double getEncoderMeters() {
-    return (m_leftEncoder.get() + -m_rightEncoder.get()) / 2 * kEncoderTick2Meter;
+    return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance());
   }
 
   /** Creates a new ExampleSubsystem. */
@@ -92,6 +93,14 @@ public class DriveSubsystem extends SubsystemBase {
     ahrs = new AHRS(NavXComType.kMXP_SPI);
     turnController = new PIDController(kP, kI, kD);
 
+        RobotConfig config;
+    try{
+      config = RobotConfig.fromGUISettings();
+    } catch (Exception e) {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
+
   }
 
   /**
@@ -102,7 +111,7 @@ public class DriveSubsystem extends SubsystemBase {
   public Command exampleMethodCommand() {
     // Inline construction of command goes here.
     // Subsystem::RunOnce implicitly requires `this` subsystem.
-    return runOnce(
+    return runOnce(    
         () -> {
           /* one-time action goes here */
         });
@@ -154,7 +163,10 @@ public class DriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    SmartDashboard.putNumber("Drive encoder value: ", getEncoderMeters());
+    // SmartDashboard.putNumber("Drive encoder value: ", getEncoderMeters());
+    System.out.println("Right Encoder:" + m_rightEncoder.getDistance());
+    System.out.println("Left Encoder:" + m_leftEncoder.getDistance());
+    
     // This method will be called once per scheduler run
   }
 
