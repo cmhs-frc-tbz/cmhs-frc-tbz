@@ -77,13 +77,13 @@ public class RobotContainer {
         fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
             .andThen(fuelSubsystem.launchCommand())
             .finallyDo(() -> fuelSubsystem.stop()));
-
+    
     m_driverController.x().whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.eject(), () -> fuelSubsystem.stop()));
 
     m_driverController.rightBumper().whileTrue(
         driveSubsystem.cheesyDriveCommand(
                     () -> -m_driverController.getLeftY(), // reverse the left joystick
-        () -> -m_driverController.getRightX(),
+        () -> -m_driverController.getRightX()*0.8,
             true));
   }
 

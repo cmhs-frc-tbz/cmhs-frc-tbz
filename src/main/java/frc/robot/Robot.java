@@ -32,7 +32,7 @@ public class Robot extends TimedRobot {
   private final Timer m_timer = new Timer();
 
   private final RobotContainer m_robotContainer;
-
+  private final Vision vision_item = Vision.getInstance();
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -41,6 +41,7 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+    //camname.startAutomaticCapture();
   }
 
   /**
@@ -57,6 +58,7 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+    System.out.println(vision_item.getPitch());
   }
 
   /** This function is called once each time the robot enters Disabled mode. */

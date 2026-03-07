@@ -6,10 +6,17 @@ package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Vision;
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
@@ -43,7 +50,11 @@ public class DriveSubsystem extends SubsystemBase {
   private final SparkMax m_rightFollower = new SparkMax(5, MotorType.kBrushed);
   AHRS ahrs;
   PIDController turnController;
+  private Vision vision_localVision = Vision.getInstance();
 
+  private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(
+    21.65 //get a correct number for trackwidth
+  ) ;
 
   static final double kP = 0.03;
   static final double kI = 0.00;
@@ -64,23 +75,32 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
   private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);        
-  poseEstimator =
-                new DifferentialDrivePoseEstimator(
-                        kinematics,
-                        getGyroYaw(),
-                        getModulePositions(),
-                        new Pose2d(),
-                        stateStdDevs,
-                        visionStdDevs);
-
 
 
   public double getEncoderMeters() {
     return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance());
   }
-
+  public void aimAndRange(Vision.targetYawAndRange targetValues, double targetYaw, double targetRange, double VISION_TURN_kP, double VISION_STRAFE_kP) {
+    //turn, kP_Yaw, kP_Range
+        double turn = (targetValues.yaw - targetYaw) * VISION_TURN_kP;
+        double forward =(targetValues.range - targetRange) * VISION_STRAFE_kP;
+        m_drive.arcadeDrive(forward, turn);
+  }
+  
+  public Command aimAndRangeCommand(){
+    return run(()->aimAndRange(vision_localVision.update(), 10, 10, 0.2, 0.2));
+  }
   /** Creates a new ExampleSubsystem. */
   public DriveSubsystem() {
+
+    poseEstimator = new DifferentialDrivePoseEstimator(
+      kinematics,
+      ahrs.getRotation2d(),
+      m_leftEncoder.getDistance(),
+      m_rightEncoder.getDistance(),
+      new Pose2d()
+    );
+
 
     globalConfig
         .smartCurrentLimit(50)
@@ -118,6 +138,19 @@ public class DriveSubsystem extends SubsystemBase {
     }
 
   }
+
+      /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
+    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
+    }
+
+    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
+    public void addVisionMeasurement(
+            Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
+        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
+    }
+
+
 
   /**
    * Example command factory method.
