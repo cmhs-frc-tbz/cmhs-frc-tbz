@@ -42,7 +42,7 @@ public class RobotContainer {
     // configure the default command, which is drive
     driveSubsystem.setDefaultCommand(driveSubsystem.cheesyDriveCommand(
         () -> -m_driverController.getLeftY(), // reverse the left joystick
-        m_driverController::getRightX,
+        () -> -m_driverController.getRightX(),
         false));
   }
 
@@ -82,8 +82,8 @@ public class RobotContainer {
 
     m_driverController.rightBumper().whileTrue(
         driveSubsystem.cheesyDriveCommand(
-            () -> -m_driverController.getLeftY(), // reverse the left joystick
-            m_driverController::getRightX,
+                    () -> -m_driverController.getLeftY(), // reverse the left joystick
+        () -> -m_driverController.getRightX(),
             true));
   }
 
