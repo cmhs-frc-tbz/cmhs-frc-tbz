@@ -93,7 +93,7 @@ public class DriveSubsystem extends SubsystemBase {
     ahrs = new AHRS(NavXComType.kMXP_SPI);
     turnController = new PIDController(kP, kI, kD);
 
-        RobotConfig config;
+    RobotConfig config;
     try{
       config = RobotConfig.fromGUISettings();
     } catch (Exception e) {
