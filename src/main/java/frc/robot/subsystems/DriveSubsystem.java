@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Vision;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
@@ -17,6 +18,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
@@ -40,21 +42,16 @@ import com.revrobotics.ResetMode;
 
 public class DriveSubsystem extends SubsystemBase {
 
-    private final DifferentialDrivePoseEstimator poseEstimator;
 
-    private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
+    // private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
 
   private final SparkMax m_leftLeader = new SparkMax(2, MotorType.kBrushed);
   private final SparkMax m_leftFollower = new SparkMax(3, MotorType.kBrushed);
   private final SparkMax m_rightLeader = new SparkMax(4, MotorType.kBrushed);
   private final SparkMax m_rightFollower = new SparkMax(5, MotorType.kBrushed);
-  AHRS ahrs;
   PIDController turnController;
-  private Vision vision_localVision = Vision.getInstance();
-
-  private final DifferentialDriveKinematics kinematics = new DifferentialDriveKinematics(
-    21.65 //get a correct number for trackwidth
-  ) ;
+  // private Vision vision_localVision = Vision.getInstance();
+  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
   static final double kP = 0.03;
   static final double kI = 0.00;
@@ -75,32 +72,26 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
   private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);        
+  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
+    21.65 //get a correct number for trackwidth
+  );
+
+    private final DifferentialDrivePoseEstimator m_poseEstimator =
+      new DifferentialDrivePoseEstimator(
+          m_kinematics,
+          m_gyro.getRotation2d(),
+          m_leftEncoder.getDistance(),
+          m_rightEncoder.getDistance(),
+          new Pose2d(),
+          VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
+          VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
 
 
   public double getEncoderMeters() {
     return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance());
   }
-  public void aimAndRange(Vision.targetYawAndRange targetValues, double targetYaw, double targetRange, double VISION_TURN_kP, double VISION_STRAFE_kP) {
-    //turn, kP_Yaw, kP_Range
-        double turn = (targetValues.yaw - targetYaw) * VISION_TURN_kP;
-        double forward =(targetValues.range - targetRange) * VISION_STRAFE_kP;
-        m_drive.arcadeDrive(forward, turn);
-  }
-  
-  public Command aimAndRangeCommand(){
-    return run(()->aimAndRange(vision_localVision.update(), 10, 10, 0.2, 0.2));
-  }
   /** Creates a new ExampleSubsystem. */
   public DriveSubsystem() {
-
-    poseEstimator = new DifferentialDrivePoseEstimator(
-      kinematics,
-      ahrs.getRotation2d(),
-      m_leftEncoder.getDistance(),
-      m_rightEncoder.getDistance(),
-      new Pose2d()
-    );
-
 
     globalConfig
         .smartCurrentLimit(50)
@@ -126,7 +117,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    ahrs = new AHRS(NavXComType.kMXP_SPI);
     turnController = new PIDController(kP, kI, kD);
 
     RobotConfig config;
@@ -139,16 +129,6 @@ public class DriveSubsystem extends SubsystemBase {
 
   }
 
-      /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)}. */
-    public void addVisionMeasurement(Pose2d visionMeasurement, double timestampSeconds) {
-        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds);
-    }
-
-    /** See {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double, Matrix)}. */
-    public void addVisionMeasurement(
-            Pose2d visionMeasurement, double timestampSeconds, Matrix<N3, N1> stdDevs) {
-        poseEstimator.addVisionMeasurement(visionMeasurement, timestampSeconds, stdDevs);
-    }
 
 
 

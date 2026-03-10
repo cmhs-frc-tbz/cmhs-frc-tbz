@@ -42,7 +42,7 @@ public class RobotContainer {
     // configure the default command, which is drive
     driveSubsystem.setDefaultCommand(driveSubsystem.cheesyDriveCommand(
         () -> -m_driverController.getLeftY(), // reverse the left joystick
-        () -> -m_driverController.getRightX(),
+        () -> m_driverController.getRightX(),
         false));
   }
 
@@ -63,11 +63,12 @@ public class RobotContainer {
   private void configureBindings() {
     // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
 
+
     // default command
 
     // Schedule `exampleMethodCommand` when the Xbox controller's B button is
     // pressed,
-    // cancelling on release.
+    // cancelling on release.\
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
     m_driverController.leftTrigger(0.5)
@@ -83,7 +84,7 @@ public class RobotContainer {
     m_driverController.rightBumper().whileTrue(
         driveSubsystem.cheesyDriveCommand(
                     () -> -m_driverController.getLeftY(), // reverse the left joystick
-        () -> -m_driverController.getRightX()*0.8,
+        () -> m_driverController.getRightX()*0.8,
             true));
   }
 
