@@ -5,6 +5,8 @@
 package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
+
+import static edu.wpi.first.units.Units.RPM;
 import static frc.robot.Constants.FuelConstants.*;
 //import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -86,6 +88,15 @@ public class RobotContainer {
                     () -> -m_driverController.getLeftY(), // reverse the left joystick
         () -> m_driverController.getRightX()*0.8,
             true));
+        // Schedule `setVelocity` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    m_driverController.a().whileTrue(fuelSubsystem.setVelocity(RPM.of(1000)));
+    m_driverController.b().whileTrue(fuelSubsystem.setVelocity(RPM.of(6000)));
+    // Schedule `set` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    m_driverController.x().whileTrue(fuelSubsystem.set(0.3));
+    m_driverController.y().whileTrue(fuelSubsystem.set(-0.3));
+
   }
 
   /**
