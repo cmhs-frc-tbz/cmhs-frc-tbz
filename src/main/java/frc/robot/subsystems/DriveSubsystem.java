@@ -35,7 +35,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import java.util.function.DoubleSupplier;
 
-import com.pathplanner.lib.config.RobotConfig;
 import com.revrobotics.PersistMode;
 //import com.revrobotics.spark.Sp   arkBase.BaseMode
 import com.revrobotics.ResetMode;
@@ -72,20 +71,6 @@ public class DriveSubsystem extends SubsystemBase {
   SparkMaxConfig rightFollowerConfig = new SparkMaxConfig();
 
   private DifferentialDrive m_drive = new DifferentialDrive(m_leftLeader::set, m_rightLeader::set);        
-  private final DifferentialDriveKinematics m_kinematics = new DifferentialDriveKinematics(
-    21.65 //get a correct number for trackwidth
-  );
-
-    private final DifferentialDrivePoseEstimator m_poseEstimator =
-      new DifferentialDrivePoseEstimator(
-          m_kinematics,
-          m_gyro.getRotation2d(),
-          m_leftEncoder.getDistance(),
-          m_rightEncoder.getDistance(),
-          new Pose2d(),
-          VecBuilder.fill(0.05, 0.05, Units.degreesToRadians(5)),
-          VecBuilder.fill(0.5, 0.5, Units.degreesToRadians(30)));
-
 
   public double getEncoderMeters() {
     return (m_leftEncoder.getDistance() + m_rightEncoder.getDistance());
@@ -118,14 +103,6 @@ public class DriveSubsystem extends SubsystemBase {
     m_rightLeader.configure(rightLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     m_rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     turnController = new PIDController(kP, kI, kD);
-
-    RobotConfig config;
-    try{
-      config = RobotConfig.fromGUISettings();
-    } catch (Exception e) {
-      // Handle exception as needed
-      e.printStackTrace();
-    }
 
   }
 
