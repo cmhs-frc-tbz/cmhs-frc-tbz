@@ -4,10 +4,13 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -54,44 +57,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller =  new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
 
-  private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-  .withControlMode(ControlMode.CLOSED_LOOP)
-  // Feedback Constants (PID Constants)
-  .withClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-  .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-  // Feedforward Constants
-  .withFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-  .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0))
-  // Telemetry name and verbosity level
-  .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH)
-  // You could also use .withGearing(12) which does the same thing.
-  // Motor properties to prevent over currenting.
-  .withMotorInverted(false)
-  .withIdleMode(MotorMode.COAST)
-  .withStatorCurrentLimit(Amps.of(40));
-
-  private SmartMotorController sparkSmartMotorController = new SparkWrapper(intakeLauncherRoller, DCMotor.getNEO(1), smcConfig);
-  
-  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(sparkSmartMotorController)
-  // Diameter of the flywheel.
-    .withMOI(MomentOfInertia.ofBaseUnits(0.0400560768, KilogramSquareMeters))
-
-    // Maximum speed of the shooter.
-  .withUpperSoftLimit(RPM.of(5600))
-  // Telemetry name and verbosity for the arm.
-  .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH)
-
-;
-
-
-  private FlyWheel shooter = new FlyWheel(shooterConfig);
-
-
+  SparkClosedLoopController m_controller = intakeLauncherRoller.getClosedLoopController();
 
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+
+
 
     // put default values for various fuel operations onto the dashboard
     // all methods in this subsystem pull their values from the dashbaord to allow
@@ -114,9 +87,36 @@ public class CANFuelSubsystem extends SubsystemBase {
     // the motor to inverted so that positive values are used for both intaking and
     // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
+        launcherConfig.encoder
+        .positionConversionFactor(1)
+        .velocityConversionFactor(1);
+
     launcherConfig.inverted(false);
      launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+        launcherConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        // Set PID values for position control. We don't need to pass a closed loop
+        // slot, as it will default to slot 0.
+        .p(0)
+        .i(0)
+        .d(0)
+        .outputRange(-1, 1)
+        // Set PID values for velocity control in slot 1
+        .p(0.0001, ClosedLoopSlot.kSlot1)
+        .i(0, ClosedLoopSlot.kSlot1)
+        .d(0, ClosedLoopSlot.kSlot1)
+        .outputRange(-1, 1, ClosedLoopSlot.kSlot1)
+        .feedForward
+          // kV is now in Volts, so we multiply by the nominal voltage (12V)
+          .kV(12.0 / 5767, ClosedLoopSlot.kSlot1);
+
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // Initialize dashboard values
+    SmartDashboard.setDefaultNumber("Target Position", 0);
+    SmartDashboard.setDefaultNumber("Target Velocity", 0);
+    SmartDashboard.setDefaultBoolean("Control Mode", false);
+    SmartDashboard.setDefaultBoolean("Reset Encoder", false);
+
   }
 
     /**
@@ -124,38 +124,6 @@ public class CANFuelSubsystem extends SubsystemBase {
    *
    * @return Shooter velocity.
    */
-  public AngularVelocity getVelocity() {return shooter.getSpeed();}
-
-    public Command sysId() { 
-      return shooter.sysId(
-        Volts.of(7),              // Step voltage for dynamic test
-        Volts.of(2).per(Second),  // Ramp rate for quasistatic test
-        Seconds.of(4)             // Maximum test duration
-      );
-    }
-
-  /**
-   * Set the shooter velocity.
-   *
-   * @param speed Speed to set.
-   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
-   */
-  public Command setVelocity(AngularVelocity speed) {return shooter.run(speed);}
-  
-  /**
-   * Set the shooter velocity setpoint.
-   *
-   * @param speed Speed to set
-   */
-  public void setVelocitySetpoint(AngularVelocity speed) {shooter.setMechanismVelocitySetpoint(speed);}
-  /**
-   * Set the dutycycle of the shooter.
-   *
-   * @param dutyCycle DutyCycle to set.
-   * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
-   */
-  public Command set(double dutyCycle) {return shooter.set(dutyCycle);}
-
 
 
   // A method to set the rollers to values for intaking
@@ -206,16 +174,5 @@ public class CANFuelSubsystem extends SubsystemBase {
   // subsystem
   public Command launchCommand() {
     return this.run(() -> launch());
-  }
-
-  public void periodic() {
-    // This method will be called once per scheduler run
-    shooter.updateTelemetry();
-  }
-
-  @Override
-  public void simulationPeriodic() {
-    // This method will be called once per scheduler run during simulation
-    shooter.simIterate();
   }
 }

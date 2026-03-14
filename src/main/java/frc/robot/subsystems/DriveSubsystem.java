@@ -59,6 +59,8 @@ public class DriveSubsystem extends SubsystemBase {
 
     Encoder m_leftEncoder = new Encoder(0, 1);
     Encoder m_rightEncoder = new Encoder(2, 3, true);
+
+    
     double kEncoderTick2Meter = 1.0 / 4096.0 * 0.128 * Math.PI; // change this to our wheelbase dimensions (2048 or 4096
     // ticks, Gear Reduction)
     // kEncoderTick2Meter = Wheel circumference (m) / (Ticks per revolution * Gear
@@ -143,6 +145,31 @@ public class DriveSubsystem extends SubsystemBase {
         return run(() -> m_drive.arcadeDrive(fwd.getAsDouble(), 0.7 * rot.getAsDouble()))
                 .withName("arcadeDrive");
     }
+
+  public void driveForwardUsingNavX(double targetDistanceInches) {
+    // Convert target distance from inches to meters (NavX uses meters)
+    double targetDistanceMeters = targetDistanceInches * 0.0254; // 1 inch = 0.0254 meters
+    double direction = targetDistanceInches > 0 ? 1 : -1; // Determine direction
+
+    double initialDisplacementX = m_gyro.getDisplacementX(); // Get initial displacement along the X-axis
+    // Start driving forwardx
+    while (Math.abs(m_gyro.getDisplacementX()) - Math.abs(initialDisplacementX) < Math.abs(targetDistanceMeters)) {
+      m_leftLeader.set(0.45 * direction);
+      m_rightLeader.set(0.45 * direction);
+    }
+
+    // Stop the robot once the target distance is reached
+    m_leftLeader.set(0);
+    m_rightLeader.set(0);
+
+  }
+
+//TODO: change file
+  public Command driveToOptimumShoot(){
+    return runOnce(()->{
+      driveForwardUsingNavX(30);
+    });
+  }
 
     public Command driveDistanceCommand(double distanceMeters, double speed) {
         return runOnce(() -> {

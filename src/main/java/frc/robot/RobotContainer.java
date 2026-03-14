@@ -13,6 +13,7 @@ import frc.robot.subsystems.CANFuelSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -73,15 +74,15 @@ public class RobotContainer {
     // cancelling on release.\
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    m_driverController.leftTrigger(0.5)
-        .whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.intake(), () -> fuelSubsystem.stop()));
+    // m_driverController.leftTrigger(0.5)
+    //     .whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.intake(), () -> fuelSubsystem.stop()));
 
-    m_driverController.rightTrigger(0.5).whileTrue(
-        fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
-            .andThen(fuelSubsystem.launchCommand())
-            .finallyDo(() -> fuelSubsystem.stop()));
+    // m_driverController.rightTrigger(0.5).whileTrue(
+    //     fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+    //         .andThen(fuelSubsystem.launchCommand())
+    //         .finallyDo(() -> fuelSubsystem.stop()));
     
-    m_driverController.x().whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.eject(), () -> fuelSubsystem.stop()));
+    // m_driverController.x().whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.eject(), () -> fuelSubsystem.stop()));
 
     m_driverController.rightBumper().whileTrue(
         driveSubsystem.cheesyDriveCommand(
@@ -90,24 +91,20 @@ public class RobotContainer {
             true));
         // Schedule `setVelocity` when the Xbox controller's B button is pressed,
     // cancelling on release.
-    m_driverController.a().whileTrue(fuelSubsystem.setVelocity(RPM.of(1000)));
-    m_driverController.b().whileTrue(fuelSubsystem.setVelocity(RPM.of(6000)));
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.x().whileTrue(fuelSubsystem.set(0.3));
-    m_driverController.y().whileTrue(fuelSubsystem.set(-0.3));
+
 
   }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
+    *
    * @return the command to run in autonomous
    */
-  // public Command getAutonomousCommand() {
-  // // An example command will be run in autonomous
-  // // return Autos.exampleAuto(m_exampleSubsystem);
-  // // return DriveForwardCmd();
+  public Command getAutonomousCommand() {
+  return new SequentialCommandGroup(
+    driveSubsystem.driveToOptimumShoot(),
+    fuelSubsystem.launchCommand()
+  );
 
-  // }
+  }
 }
