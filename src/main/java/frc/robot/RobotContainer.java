@@ -78,7 +78,7 @@ public class RobotContainer {
         .whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.intake(), () -> fuelSubsystem.stop()));
 
     m_driverController.rightTrigger(0.5).whileTrue(
-        fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+        fuelSubsystem.spinUpCommand().withTimeout(-SPIN_UP_SECONDS)
             .andThen(fuelSubsystem.launchCommand())
             .finallyDo(() -> fuelSubsystem.stop()));
     
