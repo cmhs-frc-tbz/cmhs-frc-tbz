@@ -74,15 +74,15 @@ public class RobotContainer {
     // cancelling on release.\
     // m_driverController.b().whileTrue(m_exampleSubsystem.exampleMethodCommand());
 
-    // m_driverController.leftTrigger(0.5)
-    //     .whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.intake(), () -> fuelSubsystem.stop()));
+    m_driverController.leftTrigger(0.5)
+        .whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.intake(), () -> fuelSubsystem.stop()));
 
-    // m_driverController.rightTrigger(0.5).whileTrue(
-    //     fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
-    //         .andThen(fuelSubsystem.launchCommand())
-    //         .finallyDo(() -> fuelSubsystem.stop()));
+    m_driverController.rightTrigger(0.5).whileTrue(
+        fuelSubsystem.spinUpCommand().withTimeout(SPIN_UP_SECONDS)
+            .andThen(fuelSubsystem.launchCommand())
+            .finallyDo(() -> fuelSubsystem.stop()));
     
-    // m_driverController.x().whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.eject(), () -> fuelSubsystem.stop()));
+    m_driverController.x().whileTrue(fuelSubsystem.runEnd(() -> fuelSubsystem.eject(), () -> fuelSubsystem.stop()));
 
     m_driverController.rightBumper().whileTrue(
         driveSubsystem.cheesyDriveCommand(
