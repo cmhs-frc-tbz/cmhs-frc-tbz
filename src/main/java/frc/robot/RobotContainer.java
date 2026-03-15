@@ -43,7 +43,7 @@ public class RobotContainer {
     driveSubsystem.setDefaultCommand(driveSubsystem.cheesyDriveCommand(
         () -> -m_driverController.getLeftY(), // reverse the left joystick
         () -> m_driverController.getRightX(),
-        false));
+        true));
   }
 
   /**
